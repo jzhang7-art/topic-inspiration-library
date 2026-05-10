@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>话题灵感库</title>
+  <style>
+    :root {
+      --bg: #f5f2ea;
+      --panel: #fffdfa;
+      --soft: #eee8dc;
+      --ink: #202725;
+      --muted: #68736d;
+      --line: #ddd4c4;
+      --teal: #0f766e;
+      --blue: #2563eb;
+      --amber: #b45309;
+      --red: #b42318;
+      --shadow: 0 12px 28px rgba(32, 39, 37, .08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    textarea { min-height: 74px; resize: vertical; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 11px;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, .14);
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.15; }
+    h2 { font-size: 22px; }
+    h3 { font-size: 17px; line-height: 1.35; word-break: break-word; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; line-height: 1.25; }
+
+    .app { min-height: 100vh; display: grid; grid-template-columns: minmax(340px, 430px) 1fr; }
+    .side { background: var(--panel); border-right: 1px solid var(--line); padding: 22px; overflow: auto; }
+    .main { padding: 22px; overflow: auto; }
+    .subtitle { color: var(--muted); margin-top: 7px; line-height: 1.45; }
+    .form { display: grid; gap: 13px; margin-top: 18px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .section {
+      border: 1px solid var(--line);
+      background: #fbf8f0;
+      border-radius: 8px;
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+    }
+    .section-title { font-weight: 700; color: var(--ink); font-size: 14px; }
+    .range-row { display: grid; grid-template-columns: 86px 1fr 28px; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; }
+    input[type="range"] { padding: 0; accent-color: var(--teal); }
+    .btn {
+      min-height: 38px;
+      border-radius: 7px;
+      padding: 0 12px;
+      background: var(--ink);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn.secondary { background: var(--soft); color: var(--ink); border: 1px solid var(--line); }
+    .btn.warn { background: #fff3e0; color: #8a3f00; border: 1px solid #efc079; }
+    .btn.danger { background: #fff0ee; color: var(--red); border: 1px solid #efb3ab; }
+    .actions, .inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(5, minmax(110px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 13px; min-height: 72px; }
+    .stat strong { display: block; font-size: 24px; line-height: 1; margin-bottom: 7px; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .filters { display: grid; grid-template-columns: minmax(220px, 1.5fr) repeat(5, minmax(115px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .cards { display: grid; gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 15px; }
+    .card-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+    .meta, .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+    .pill { border-radius: 999px; padding: 4px 8px; background: var(--soft); color: var(--muted); font-size: 12px; line-height: 1.2; }
+    .pill.hot { background: #e2f5f1; color: #075e57; }
+    .pill.owner { background: #eaf0ff; color: #1d4ed8; }
+    .pill.status { background: #fff4db; color: #7a4600; }
+    .score {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(var(--teal) calc(var(--score) * 1%), #e7dfd1 0);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      position: relative;
+    }
+    .score::before { content: ""; width: 45px; height: 45px; border-radius: 50%; background: var(--panel); position: absolute; }
+    .score span { position: relative; font-weight: 800; }
+    .body { margin-top: 12px; color: #36403d; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+    .formula, .hook, .review {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-left: 3px solid var(--amber);
+      background: #fff8ed;
+      color: #55330b;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .review { border-color: var(--blue); background: #eef4ff; color: #1e3a8a; }
+    .small { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .empty { border: 1px dashed var(--line); border-radius: 8px; padding: 36px 18px; text-align: center; color: var(--muted); background: rgba(255, 253, 250, .72); }
+    .file-input { display: none; }
+    .cloud {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .cloud-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .status-dot::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+    .status-dot.online::before { background: var(--teal); }
+    .status-dot.error::before { background: var(--red); }
+
+    @media (max-width: 1120px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .filters { grid-template-columns: 1fr 1fr 1fr; }
+      .stats { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 680px) {
+      .side, .main { padding: 16px; }
+      .topbar, .card-head, .cloud-head { flex-direction: column; align-items: stretch; }
+      .grid2, .grid3, .filters, .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <h1>话题灵感库</h1>
+      <p class="subtitle">团队共用前的增强版模板：先收集生活灵感，再判断爆款潜力、推进创作、记录发布复盘。</p>
+
+      <form class="form" id="ideaForm">
+        <div class="section">
+          <div class="section-title">1. 灵感收集</div>
+          <label>灵感标题<input id="title" required maxlength="90" placeholder="例如：为什么古人吃饭也讲仪式感？"></label>
+          <label>看到的事情 / 原始素材<textarea id="note" required placeholder="记录事件、对话、观察、链接、截图描述或一句话想法"></textarea></label>
+          <div class="grid2">
+            <label>内容支柱<select id="pillar"><option>生活观察</option><option>礼乐科普</option><option>历史冷知识</option><option>文化对比</option><option>热点借势</option><option>人物故事</option></select></label>
+            <label>来源场景<input id="source" maxlength="60" placeholder="聊天、书、路上、展览、评论区"></label>
+          </div>
+          <label>素材证据<textarea id="evidence" placeholder="链接、出处、截图说明、评论区原话、可引用案例"></textarea></label>
+        </div>
+
+        <div class="section">
+          <div class="section-title">2. 选题判断</div>
+          <label>目标受众痛点 / 好奇心<input id="audience" maxlength="110" placeholder="他们为什么会点开、转发或评论？"></label>
+          <label>一句话选题公式<input id="formula" maxlength="150" placeholder="给谁看，用什么冲突/好奇点，讲清什么观点"></label>
+          <label>开头钩子<input id="hook" maxlength="140" placeholder="例如：你以为礼只是规矩，其实它是古人的社交算法"></label>
+          <label>标题候选<textarea id="titles" placeholder="每行一个标题候选：反常识、情绪、干货、悬念、热点借势"></textarea></label>
+          <label>标签<input id="tags" maxlength="140" placeholder="用逗号分隔：礼制, 饭局, 反常识"></label>
+          <div class="grid2">
+            <label>适合形式<select id="format"><option>短视频</option><option>图文笔记</option><option>口播</option><option>长文</option><option>直播话题</option></select></label>
+            <label>优先级<select id="priority"><option>中</option><option>高</option><option>低</option><option>本周必做</option></select></label>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">爆款潜力评分</div>
+          <div class="range-row"><span>反常识</span><input id="counter" type="range" min="1" max="5" value="3"><strong data-value-for="counter">3</strong></div>
+          <div class="range-row"><span>情绪冲突</span><input id="emotion" type="range" min="1" max="5" value="3"><strong data-value-for="emotion">3</strong></div>
+          <div class="range-row"><span>评论欲望</span><input id="comment" type="range" min="1" max="5" value="3"><strong data-value-for="comment">3</strong></div>
+          <div class="range-row"><span>转发理由</span><input id="share" type="range" min="1" max="5" value="3"><strong data-value-for="share">3</strong></div>
+          <div class="range-row"><span>定位匹配</span><input id="fit" type="range" min="1" max="5" value="3"><strong data-value-for="fit">3</strong></div>
+          <div class="range-row"><span>制作难度</span><input id="difficulty" type="range" min="1" max="5" value="3"><strong data-value-for="difficulty">3</strong></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">3. 创作推进</div>
+          <div class="grid2">
+            <label>流程状态<select id="status"><option>新灵感</option><option>待讨论</option><option>待验证</option><option>已立项</option><option>写脚本中</option><option>拍摄/制作中</option><option>已发布</option><option>复盘完成</option><option>放弃</option></select></label>
+            <label>负责人<select id="owner"><option>未分配</option><option>Felix</option><option>Vivi</option><option>莫莫</option><option>Anya</option></select></label>
+          </div>
+          <div class="grid2">
+            <label>创建人<input id="creator" maxlength="40" placeholder="谁发现的"></label>
+            <label>投票 / 赞同数<input id="votes" type="number" min="0" step="1" value="0"></label>
+          </div>
+          <label>下一步动作<input id="nextAction" maxlength="120" placeholder="例如：查出处、写脚本、找案例、周会讨论"></label>
+        </div>
+
+        <div class="section">
+          <div class="section-title">4. 发布复盘</div>
+          <div class="grid3">
+            <label>平台<input id="platform" maxlength="40" placeholder="小红书/视频号/抖音"></label>
+            <label>浏览量<input id="views" type="number" min="0" step="1" value="0"></label>
+            <label>涨粉<input id="followers" type="number" min="0" step="1" value="0"></label>
+          </div>
+          <label>复盘结论<textarea id="review" placeholder="为什么成功/失败？是否值得做成系列？下次怎么改？"></textarea></label>
+        </div>
+
+        <div class="actions">
+          <button class="btn" type="submit" id="submitBtn">＋ 保存灵感</button>
+          <button class="btn secondary" type="button" id="resetBtn">↺ 清空</button>
+        </div>
+        <p class="small">未连接云端时会保存到当前浏览器；连接 Supabase 后会同步到团队共享数据库。</p>
+      </form>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2>爆款话题工作台</h2>
+          <p class="subtitle">按分数、状态、负责人和优先级筛选，决定本周先做什么。</p>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" id="exportBtn" type="button">⇩ 导出</button>
+          <button class="btn secondary" id="importBtn" type="button">⇧ 导入</button>
+          <input class="file-input" id="importFile" type="file" accept="application/json">
+          <button class="btn danger" id="clearAllBtn" type="button">× 清库</button>
+        </div>
+      </div>
+
+      <section class="cloud">
+        <div class="cloud-head">
+          <div>
+            <strong>云端连接</strong>
+            <p class="small">填入 Supabase 项目的 URL 和 Publishable key 后，合伙人打开同一个部署链接会看到同一份库。</p>
+          </div>
+          <span class="status-dot" id="cloudStatus">本地模式</span>
+        </div>
+        <div class="grid2">
+          <label>Supabase URL<input id="supabaseUrl" placeholder="https://xxxx.supabase.co"></label>
+          <label>Supabase Publishable key<input id="supabaseAnonKey" placeholder="sb_publishable_..." type="password"></label>
+        </div>
+        <div class="actions">
+          <button class="btn" id="connectCloudBtn" type="button">连接云端</button>
+          <button class="btn secondary" id="pullCloudBtn" type="button">从云端刷新</button>
+          <button class="btn secondary" id="pushCloudBtn" type="button">上传本地数据</button>
+          <button class="btn danger" id="disconnectCloudBtn" type="button">断开</button>
+        </div>
+      </section>
+
+      <section class="stats" id="stats"></section>
+
+      <section class="filters">
+        <input id="search" placeholder="搜索标题、内容、标签、负责人、钩子">
+        <select id="filterStatus"><option value="">全部状态</option></select>
+        <select id="filterOwner"><option value="">全部负责人</option></select>
+        <select id="filterPriority"><option value="">全部优先级</option></select>
+        <select id="filterPillar"><option value="">全部支柱</option></select>
+        <select id="sortBy"><option value="score">按爆款分</option><option value="votes">按投票</option><option value="newest">按新增时间</option><option value="title">按标题</option></select>
+      </section>
+
+      <section class="cards" id="cards"></section>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "topic-inspiration-library-team-v2";
+    const CLOUD_CONFIG_KEY = "topic-inspiration-library-supabase-config";
+    const TABLE_NAME = "topic_ideas";
+    const DEFAULT_SUPABASE_URL = "https://qocffgqhdhohskvrhvdr.supabase.co";
+    const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_j7NhcEMEj91NOVihjwzZHA_Ppnvb5kj";
+    const textFields = ["title", "note", "pillar", "source", "evidence", "audience", "formula", "hook", "titles", "tags", "format", "priority", "status", "owner", "creator", "votes", "nextAction", "platform", "views", "followers", "review"];
+    const scoreFields = ["counter", "emotion", "comment", "share", "fit", "difficulty"];
+    const el = (id) => document.getElementById(id);
+    const form = el("ideaForm");
+    let editingId = null;
+    let ideas = loadIdeas();
+    let supabaseClient = null;
+    let cloudEnabled = false;
+
+    function seedIdeas() {
+      return [{
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        title: "为什么古人吃饭也要讲礼？",
+        note: "从一次饭局座位安排联想到古代礼制：谁坐哪里、先敬谁、怎么开席，背后都是秩序和人情。",
+        pillar: "礼乐科普",
+        source: "饭局观察",
+        evidence: "可查《礼记》相关章节，补充现代饭局座次案例。",
+        audience: "对传统文化感兴趣，但怕内容枯燥的人",
+        formula: "给年轻人讲清楚：饭桌礼仪不是装腔，而是一套古人的社会秩序。",
+        hook: "你以为饭桌礼仪只是客套，其实它曾经决定一个人的社会位置。",
+        titles: "古人吃饭，为什么规矩这么多？\n饭局座位背后，藏着中国人的秩序感\n你讨厌的饭桌规矩，古人为什么这么重视？",
+        tags: ["礼制", "饭局", "传统文化"],
+        format: "短视频",
+        priority: "高",
+        status: "可创作",
+        owner: "未分配",
+        creator: "示例",
+        votes: 3,
+        nextAction: "查礼记出处，写 60 秒口播脚本",
+        platform: "",
+        views: 0,
+        followers: 0,
+        review: "",
+        scores: { counter: 4, emotion: 3, comment: 4, share: 4, fit: 5, difficulty: 2 }
+      }];
+    }
+
+    function loadIdeas() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return seedIdeas();
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : seedIdeas();
+      } catch {
+        return seedIdeas();
+      }
+    }
+
+    function saveIdeas() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(ideas));
+    }
+
+    function setCloudStatus(text, state = "") {
+      el("cloudStatus").textContent = text;
+      el("cloudStatus").className = `status-dot ${state}`;
+    }
+
+    function loadCloudConfig() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || "{}");
+        return {
+          url: normalizeSupabaseUrl(saved.url || DEFAULT_SUPABASE_URL),
+          anonKey: saved.anonKey || DEFAULT_SUPABASE_PUBLISHABLE_KEY
+        };
+      } catch {
+        return {
+          url: normalizeSupabaseUrl(DEFAULT_SUPABASE_URL),
+          anonKey: DEFAULT_SUPABASE_PUBLISHABLE_KEY
+        };
+      }
+    }
+
+    function saveCloudConfig(url, anonKey) {
+      localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify({ url: normalizeSupabaseUrl(url), anonKey }));
+    }
+
+    function normalizeSupabaseUrl(url) {
+      return String(url || "")
+        .trim()
+        .replace(/\/rest\/v1\/?$/i, "")
+        .replace(/\/+$/g, "");
+    }
+
+    function fillCloudConfig() {
+      const config = loadCloudConfig();
+      el("supabaseUrl").value = config.url || "";
+      el("supabaseAnonKey").value = config.anonKey || "";
+    }
+
+    function initCloudClient() {
+      const url = normalizeSupabaseUrl(el("supabaseUrl").value);
+      const anonKey = el("supabaseAnonKey").value.trim();
+      if (!url || !anonKey) {
+        supabaseClient = null;
+        cloudEnabled = false;
+        setCloudStatus("本地模式");
+        return false;
+      }
+      el("supabaseUrl").value = url;
+      saveCloudConfig(url, anonKey);
+      supabaseClient = { url, anonKey };
+      cloudEnabled = true;
+      setCloudStatus("已连接云端", "online");
+      return true;
+    }
+
+    async function cloudRequest(path, options = {}) {
+      if (!supabaseClient) throw new Error("未连接云端");
+      const response = await fetch(`${supabaseClient.url}/rest/v1/${path}`, {
+        ...options,
+        headers: {
+          apikey: supabaseClient.anonKey,
+          Authorization: `Bearer ${supabaseClient.anonKey}`,
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        }
+      });
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : null;
+      if (!response.ok) {
+        throw new Error(data?.message || data?.error || `HTTP ${response.status}`);
+      }
+      return data;
+    }
+
+    function normalizeCloudRow(row) {
+      const data = row.data || {};
+      return {
+        ...data,
+        id: row.id || data.id || crypto.randomUUID(),
+        createdAt: data.createdAt || row.created_at || new Date().toISOString(),
+        updatedAt: data.updatedAt || row.updated_at || new Date().toISOString(),
+        tags: Array.isArray(data.tags) ? data.tags : splitTags(data.tags),
+        scores: { counter: 3, emotion: 3, comment: 3, share: 3, fit: 3, difficulty: 3, ...(data.scores || {}) }
+      };
+    }
+
+    async function pullCloudIdeas() {
+      if (!cloudEnabled || !supabaseClient) return;
+      try {
+        const data = await cloudRequest(`${TABLE_NAME}?select=*&order=updated_at.desc`);
+        ideas = data.map(normalizeCloudRow);
+        saveIdeas();
+        renderCards();
+        setCloudStatus(`已连接云端 · ${ideas.length} 条`, "online");
+      } catch (error) {
+        setCloudStatus(`云端读取失败：${error.message}`, "error");
+      }
+    }
+
+    async function upsertCloudIdea(idea) {
+      if (!cloudEnabled || !supabaseClient) return;
+      const payload = { ...idea, updatedAt: new Date().toISOString() };
+      try {
+        await cloudRequest(TABLE_NAME, {
+          method: "POST",
+          headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify({
+            id: payload.id,
+            data: payload,
+            updated_at: payload.updatedAt
+          })
+        });
+        setCloudStatus("已同步云端", "online");
+      } catch (error) {
+        setCloudStatus(`云端保存失败：${error.message}`, "error");
+      }
+    }
+
+    async function deleteCloudIdea(id) {
+      if (!cloudEnabled || !supabaseClient) return;
+      try {
+        await cloudRequest(`${TABLE_NAME}?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+        setCloudStatus("已同步云端", "online");
+      } catch (error) {
+        setCloudStatus(`云端删除失败：${error.message}`, "error");
+      }
+    }
+
+    async function pushAllToCloud() {
+      if (!cloudEnabled || !supabaseClient) return;
+      if (!ideas.length) {
+        setCloudStatus("本地没有可上传数据", "online");
+        return;
+      }
+      const rows = ideas.map((idea) => ({
+        id: idea.id,
+        data: { ...idea, updatedAt: new Date().toISOString() },
+        updated_at: new Date().toISOString()
+      }));
+      try {
+        await cloudRequest(TABLE_NAME, {
+          method: "POST",
+          headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify(rows)
+        });
+        setCloudStatus(`已上传 ${rows.length} 条`, "online");
+      } catch (error) {
+        setCloudStatus(`上传失败：${error.message}`, "error");
+      }
+    }
+
+    function splitTags(value) {
+      return String(value || "").split(/[,，]/).map((tag) => tag.trim()).filter(Boolean);
+    }
+
+    function scoreOf(idea) {
+      const scores = idea.scores || {};
+      const positive = ["counter", "emotion", "comment", "share", "fit"].reduce((sum, key) => sum + Number(scores[key] || 0), 0);
+      const difficultyPenalty = 6 - Number(scores.difficulty || 3);
+      return Math.round(((positive + difficultyPenalty) / 30) * 100);
+    }
+
+    function collectForm() {
+      const old = editingId ? ideas.find((item) => item.id === editingId) : null;
+      const idea = {
+        id: editingId || crypto.randomUUID(),
+        createdAt: old ? old.createdAt : new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        scores: {}
+      };
+      textFields.forEach((key) => idea[key] = el(key).value.trim());
+      idea.tags = splitTags(el("tags").value);
+      idea.votes = Number(idea.votes || 0);
+      idea.views = Number(idea.views || 0);
+      idea.followers = Number(idea.followers || 0);
+      scoreFields.forEach((key) => idea.scores[key] = Number(el(key).value));
+      return idea;
+    }
+
+    function fillForm(idea) {
+      editingId = idea.id;
+      textFields.forEach((key) => {
+        if (key === "tags") el(key).value = (idea.tags || []).join(", ");
+        else el(key).value = idea[key] ?? "";
+      });
+      scoreFields.forEach((key) => el(key).value = (idea.scores || {})[key] || 3);
+      syncRanges();
+      el("submitBtn").textContent = "✓ 更新灵感";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function resetForm() {
+      editingId = null;
+      form.reset();
+      ["votes", "views", "followers"].forEach((key) => el(key).value = 0);
+      scoreFields.forEach((key) => el(key).value = 3);
+      syncRanges();
+      el("submitBtn").textContent = "＋ 保存灵感";
+    }
+
+    function syncRanges() {
+      scoreFields.forEach((key) => document.querySelector(`[data-value-for="${key}"]`).textContent = el(key).value);
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[char]);
+    }
+
+    function uniqueValues(key) {
+      return [...new Set(ideas.map((idea) => idea[key]).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "zh-CN"));
+    }
+
+    function refreshFilters() {
+      [["filterStatus", "status", "全部状态"], ["filterOwner", "owner", "全部负责人"], ["filterPriority", "priority", "全部优先级"], ["filterPillar", "pillar", "全部支柱"]].forEach(([id, key, label]) => {
+        const current = el(id).value;
+        el(id).innerHTML = `<option value="">${label}</option>` + uniqueValues(key).map((value) => `<option>${escapeHtml(value)}</option>`).join("");
+        el(id).value = current;
+      });
+    }
+
+    function filteredIdeas() {
+      const query = el("search").value.trim().toLowerCase();
+      const status = el("filterStatus").value;
+      const owner = el("filterOwner").value;
+      const priority = el("filterPriority").value;
+      const pillar = el("filterPillar").value;
+      const sortBy = el("sortBy").value;
+
+      return ideas.filter((idea) => {
+        const haystack = [idea.title, idea.note, idea.pillar, idea.source, idea.evidence, idea.audience, idea.formula, idea.hook, idea.titles, idea.status, idea.owner, idea.creator, idea.nextAction, idea.review, ...(idea.tags || [])].join(" ").toLowerCase();
+        return (!query || haystack.includes(query))
+          && (!status || idea.status === status)
+          && (!owner || idea.owner === owner)
+          && (!priority || idea.priority === priority)
+          && (!pillar || idea.pillar === pillar);
+      }).sort((a, b) => {
+        if (sortBy === "votes") return Number(b.votes || 0) - Number(a.votes || 0);
+        if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
+        if (sortBy === "title") return String(a.title).localeCompare(String(b.title), "zh-CN");
+        return scoreOf(b) - scoreOf(a);
+      });
+    }
+
+    function renderStats(list) {
+      const avg = ideas.length ? Math.round(ideas.reduce((sum, idea) => sum + scoreOf(idea), 0) / ideas.length) : 0;
+      const making = ideas.filter((idea) => ["已立项", "写脚本中", "拍摄/制作中"].includes(idea.status)).length;
+      const published = ideas.filter((idea) => ["已发布", "复盘完成"].includes(idea.status)).length;
+      const hot = ideas.filter((idea) => scoreOf(idea) >= 80).length;
+      el("stats").innerHTML = [["总灵感", ideas.length], ["当前筛选", list.length], ["推进中", making], ["已发布", published], ["高分/均分", `${hot}/${avg}`]].map(([label, value]) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`).join("");
+    }
+
+    function lines(value) {
+      return String(value || "").split("\n").map((line) => line.trim()).filter(Boolean);
+    }
+
+    function renderCards() {
+      refreshFilters();
+      const list = filteredIdeas();
+      renderStats(list);
+      if (!list.length) {
+        el("cards").innerHTML = `<div class="empty">没有匹配的灵感。可以先记录一个生活里的新发现，再在周会上筛选。</div>`;
+        return;
+      }
+
+      el("cards").innerHTML = list.map((idea) => {
+        const score = scoreOf(idea);
+        const date = new Date(idea.createdAt).toLocaleDateString("zh-CN");
+        const titleLines = lines(idea.titles);
+        return `<article class="card">
+          <div class="card-head">
+            <div>
+              <h3>${escapeHtml(idea.title)}</h3>
+              <div class="meta">
+                <span class="pill hot">爆款分 ${score}</span>
+                <span class="pill status">${escapeHtml(idea.status)}</span>
+                <span class="pill owner">负责人：${escapeHtml(idea.owner || "未分配")}</span>
+                <span class="pill">优先级：${escapeHtml(idea.priority)}</span>
+                <span class="pill">投票 ${Number(idea.votes || 0)}</span>
+                <span class="pill">${escapeHtml(idea.pillar)}</span>
+                <span class="pill">${date}</span>
+              </div>
+            </div>
+            <div class="score" style="--score:${score}"><span>${score}</span></div>
+          </div>
+          <p class="body">${escapeHtml(idea.note)}</p>
+          ${idea.formula ? `<div class="formula">选题公式：${escapeHtml(idea.formula)}</div>` : ""}
+          ${idea.hook ? `<div class="hook">开头钩子：${escapeHtml(idea.hook)}</div>` : ""}
+          ${titleLines.length ? `<p class="body"><strong>标题候选</strong><br>${titleLines.map((line) => `· ${escapeHtml(line)}`).join("<br>")}</p>` : ""}
+          <p class="small">形式：${escapeHtml(idea.format)} · 创建人：${escapeHtml(idea.creator || "未填写")} · 下一步：${escapeHtml(idea.nextAction || "未填写")}</p>
+          ${idea.evidence ? `<p class="small">素材证据：${escapeHtml(idea.evidence)}</p>` : ""}
+          ${idea.review ? `<div class="review">复盘：${escapeHtml(idea.review)}</div>` : ""}
+          <div class="tags">${(idea.tags || []).map((tag) => `<span class="pill"># ${escapeHtml(tag)}</span>`).join("")}</div>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn secondary" type="button" onclick="editIdea('${idea.id}')">✎ 编辑</button>
+            <button class="btn warn" type="button" onclick="voteIdea('${idea.id}')">＋ 投票</button>
+            <button class="btn secondary" type="button" onclick="duplicateIdea('${idea.id}')">⧉ 复制</button>
+            <button class="btn danger" type="button" onclick="deleteIdea('${idea.id}')">× 删除</button>
+          </div>
+        </article>`;
+      }).join("");
+    }
+
+    window.editIdea = (id) => {
+      const idea = ideas.find((item) => item.id === id);
+      if (idea) fillForm(idea);
+    };
+
+    window.voteIdea = async (id) => {
+      let changedIdea = null;
+      ideas = ideas.map((idea) => idea.id === id ? { ...idea, votes: Number(idea.votes || 0) + 1, updatedAt: new Date().toISOString() } : idea);
+      changedIdea = ideas.find((idea) => idea.id === id);
+      saveIdeas();
+      await upsertCloudIdea(changedIdea);
+      renderCards();
+    };
+
+    window.duplicateIdea = async (id) => {
+      const idea = ideas.find((item) => item.id === id);
+      if (!idea) return;
+      const duplicated = { ...idea, id: crypto.randomUUID(), title: `${idea.title}（变体）`, status: "新灵感", votes: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      ideas.unshift(duplicated);
+      saveIdeas();
+      await upsertCloudIdea(duplicated);
+      renderCards();
+    };
+
+    window.deleteIdea = async (id) => {
+      if (!confirm("确定删除这条灵感吗？")) return;
+      ideas = ideas.filter((idea) => idea.id !== id);
+      if (editingId === id) resetForm();
+      saveIdeas();
+      await deleteCloudIdea(id);
+      renderCards();
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const idea = collectForm();
+      ideas = editingId ? ideas.map((item) => item.id === editingId ? idea : item) : [idea, ...ideas];
+      saveIdeas();
+      await upsertCloudIdea(idea);
+      resetForm();
+      renderCards();
+    });
+
+    el("resetBtn").addEventListener("click", resetForm);
+    scoreFields.forEach((key) => el(key).addEventListener("input", syncRanges));
+    ["search", "filterStatus", "filterOwner", "filterPriority", "filterPillar", "sortBy"].forEach((id) => el(id).addEventListener("input", renderCards));
+
+    el("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(ideas, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `话题灵感库-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    el("importBtn").addEventListener("click", () => el("importFile").click());
+    el("importFile").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const imported = JSON.parse(await file.text());
+        if (!Array.isArray(imported)) throw new Error("bad file");
+        ideas = imported.map((idea) => ({
+          ...idea,
+          id: idea.id || crypto.randomUUID(),
+          tags: Array.isArray(idea.tags) ? idea.tags : splitTags(idea.tags),
+          scores: { counter: 3, emotion: 3, comment: 3, share: 3, fit: 3, difficulty: 3, ...(idea.scores || {}) },
+          createdAt: idea.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }));
+        saveIdeas();
+        await pushAllToCloud();
+        renderCards();
+      } catch {
+        alert("导入失败，请选择由本工具导出的 JSON 文件。");
+      } finally {
+        event.target.value = "";
+      }
+    });
+
+    el("clearAllBtn").addEventListener("click", async () => {
+      if (!confirm("确定清空整个灵感库吗？这个操作不会保留当前数据。")) return;
+      if (cloudEnabled && supabaseClient && !confirm("当前已连接云端，也会清空云端数据。确定继续吗？")) return;
+      if (cloudEnabled && supabaseClient) {
+        try {
+          await cloudRequest(`${TABLE_NAME}?id=neq.00000000-0000-0000-0000-000000000000`, { method: "DELETE" });
+        } catch (error) {
+          setCloudStatus(`云端清空失败：${error.message}`, "error");
+          return;
+        }
+      }
+      ideas = [];
+      saveIdeas();
+      resetForm();
+      renderCards();
+    });
+
+    el("connectCloudBtn").addEventListener("click", async () => {
+      if (!initCloudClient()) return;
+      await pullCloudIdeas();
+    });
+
+    el("pullCloudBtn").addEventListener("click", async () => {
+      if (!cloudEnabled && !initCloudClient()) return;
+      await pullCloudIdeas();
+    });
+
+    el("pushCloudBtn").addEventListener("click", async () => {
+      if (!cloudEnabled && !initCloudClient()) return;
+      if (!confirm("确定把当前本地数据上传到云端吗？同 ID 的云端记录会被覆盖。")) return;
+      await pushAllToCloud();
+    });
+
+    el("disconnectCloudBtn").addEventListener("click", () => {
+      localStorage.removeItem(CLOUD_CONFIG_KEY);
+      el("supabaseUrl").value = "";
+      el("supabaseAnonKey").value = "";
+      supabaseClient = null;
+      cloudEnabled = false;
+      setCloudStatus("本地模式");
+    });
+
+    fillCloudConfig();
+    if (el("supabaseUrl").value && el("supabaseAnonKey").value) {
+      initCloudClient();
+      pullCloudIdeas();
+    }
+
+    syncRanges();
+    renderCards();
+  </script>
+</body>
+</html>
