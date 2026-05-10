@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>话题灵感库使用说明书</title>
+  <style>
+    :root { --bg:#f5f2ea; --paper:#fffdf8; --ink:#202725; --muted:#65706a; --line:#ddd4c4; --teal:#0f766e; --amber:#b45309; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; line-height:1.72; letter-spacing:0; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 28px 18px 56px; }
+    article { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:34px; box-shadow:0 12px 30px rgba(32,39,37,.08); }
+    h1 { font-size:32px; line-height:1.2; margin:0 0 18px; padding-bottom:16px; border-bottom:2px solid var(--teal); }
+    h2 { font-size:23px; line-height:1.35; margin:34px 0 12px; color:#123b38; }
+    h3 { font-size:18px; line-height:1.35; margin:24px 0 8px; color:#2f3b37; }
+    p { margin: 9px 0; }
+    ul, ol { margin: 8px 0 14px; padding-left: 24px; }
+    li { margin: 4px 0; }
+    code { background:#eee8dc; border:1px solid #e1d8c8; border-radius:5px; padding:1px 5px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:.92em; }
+    pre { background:#1f2526; color:#f8faf9; border-radius:8px; padding:13px 14px; overflow:auto; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+    pre code { background:transparent; border:0; color:inherit; padding:0; }
+    table { width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; }
+    th, td { border:1px solid var(--line); padding:8px 9px; text-align:left; vertical-align:top; }
+    th { background:#eee8dc; }
+    .meta { color:var(--muted); margin-top:-8px; margin-bottom:22px; }
+    .print-actions { display:flex; justify-content:flex-end; margin-bottom:12px; }
+    .print-actions button { border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:7px; padding:9px 12px; cursor:pointer; }
+    @media (max-width: 680px) { .wrap{padding:14px 10px 34px;} article{padding:20px 16px;border-radius:8px;} h1{font-size:25px;} h2{font-size:20px;margin-top:28px;} h3{font-size:17px;} body{font-size:15px;} }
+    @media print { body{background:#fff;} .wrap{max-width:none;padding:0;} article{border:0;box-shadow:none;padding:0;} .print-actions{display:none;} h2{break-after:avoid;} pre{break-inside:avoid;} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="print-actions"><button onclick="window.print()">打印 / 保存 PDF</button></div>
+    <article>
+      <h1>话题灵感库使用说明书</h1>
+<h2>1. 这个库是用来做什么的</h2>
+<p>话题灵感库不是普通备忘录，而是团队的自媒体选题库存。</p>
+<p>它的目标是把日常看到的有趣事情、反常识观点、情绪冲突、评论区洞察、热点现象，沉淀成可以被筛选、推进和复盘的爆款选题。</p>
+<p>核心流程：</p>
+<pre><code>灵感收集 → 选题判断 → 创作推进 → 发布复盘</code></pre>
+<h2>2. 使用入口</h2>
+<p>线上版地址：</p>
+<pre><code>https://jzhang7-art.github.io/topic-inspiration-library/</code></pre>
+<p>打开后点击页面里的 <code>连接云端</code>。</p>
+<p>如果没有自动填入云端信息，手动填写：</p>
+<pre><code>Supabase URL:
+https://qocffgqhdhohskvrhvdr.supabase.co
+
+Supabase Publishable key:
+sb_publishable_j7NhcEMEj91NOVihjwzZHA_Ppnvb5kj</code></pre>
+<p>连接成功后，会显示类似：</p>
+<pre><code>已连接云端 · 2 条</code></pre>
+<h2>3. 谁来用</h2>
+<p>团队成员：</p>
+<ul>
+<li>Felix</li>
+<li>Vivi</li>
+<li>莫莫</li>
+<li>Anya</li>
+</ul>
+<p>每个人都可以录入灵感、投票、编辑状态、更新负责人和填写复盘。</p>
+<h2>4. 每天怎么用</h2>
+<p>每个人每天至少录入 3 条灵感。</p>
+<p>不要求一开始就完整，但至少填写：</p>
+<ul>
+<li>灵感标题</li>
+<li>看到的事情 / 原始素材</li>
+<li>内容支柱</li>
+<li>创建人</li>
+<li>标签</li>
+</ul>
+<p>如果已经知道谁推进，就填负责人；不确定就选 <code>未分配</code>。</p>
+<h2>5. 怎么录入一条好灵感</h2>
+<p>不要只写一个模糊标题，要尽量保留原始观察。</p>
+<p>差的写法：</p>
+<pre><code>古代礼仪</code></pre>
+<p>好的写法：</p>
+<pre><code>今天饭局上大家都在等长辈先动筷子，这让我想到古代“礼”其实不是虚礼，而是一套确认关系顺序的系统。</code></pre>
+<p>一条好灵感最好包含：</p>
+<ul>
+<li>你在哪里看到的</li>
+<li>这件事为什么有意思</li>
+<li>它和账号定位有什么关系</li>
+<li>观众为什么会点开</li>
+<li>有没有冲突、反常识或情绪点</li>
+</ul>
+<h2>6. 字段怎么填</h2>
+<h3>灵感收集</h3>
+<p><code>灵感标题</code></p>
+<p>用一句话概括这个选题。</p>
+<p><code>看到的事情 / 原始素材</code></p>
+<p>记录真实素材，不要过早加工。可以是生活观察、聊天、评论区、书里看到的内容、热点事件。</p>
+<p><code>内容支柱</code></p>
+<p>选择它属于哪个方向：</p>
+<ul>
+<li>生活观察</li>
+<li>礼乐科普</li>
+<li>历史冷知识</li>
+<li>文化对比</li>
+<li>热点借势</li>
+<li>人物故事</li>
+</ul>
+<p><code>来源场景</code></p>
+<p>例如：饭局、聊天、评论区、书、展览、路上、课堂。</p>
+<p><code>素材证据</code></p>
+<p>放出处、链接、截图说明、评论原话、书名、案例。</p>
+<h3>选题判断</h3>
+<p><code>目标受众痛点 / 好奇心</code></p>
+<p>写清楚观众为什么会点开。</p>
+<p><code>一句话选题公式</code></p>
+<p>格式可以参考：</p>
+<pre><code>给谁看，用什么冲突/好奇点，讲清什么观点。</code></pre>
+<p>例子：</p>
+<pre><code>给年轻人讲清楚：饭桌礼仪不是装腔，而是一套古人的社会秩序。</code></pre>
+<p><code>开头钩子</code></p>
+<p>写成视频或图文开头第一句话。</p>
+<p><code>标题候选</code></p>
+<p>每行写一个标题，至少写 3 个方向：</p>
+<ul>
+<li>反常识标题</li>
+<li>情绪标题</li>
+<li>干货标题</li>
+<li>悬念标题</li>
+<li>热点借势标题</li>
+</ul>
+<p><code>标签</code></p>
+<p>用来后期搜索和归类。</p>
+<h3>爆款潜力评分</h3>
+<p>每个维度 1-5 分。</p>
+<p><code>反常识</code></p>
+<p>观众是否会觉得“原来是这样”。</p>
+<p><code>情绪冲突</code></p>
+<p>是否能引发认同、反驳、共鸣、不服、怀旧、震惊。</p>
+<p><code>评论欲望</code></p>
+<p>观众看完是否想表达自己的经历或观点。</p>
+<p><code>转发理由</code></p>
+<p>观众是否有理由转给朋友、同事、家人。</p>
+<p><code>定位匹配</code></p>
+<p>是否符合账号长期方向。</p>
+<p><code>制作难度</code></p>
+<p>越难做分越高，但系统会反向计入爆款分。也就是说，制作越难，综合分会被拉低。</p>
+<h3>创作推进</h3>
+<p><code>流程状态</code></p>
+<ul>
+<li>新灵感：刚记录，还没讨论</li>
+<li>待讨论：需要选题会判断</li>
+<li>待验证：需要查资料、看数据、找案例</li>
+<li>已立项：决定要做</li>
+<li>写脚本中：进入脚本阶段</li>
+<li>拍摄/制作中：进入制作阶段</li>
+<li>已发布：内容已经发出</li>
+<li>复盘完成：已经填写结果和结论</li>
+<li>放弃：暂时不做</li>
+</ul>
+<p><code>负责人</code></p>
+<p>负责推进这个选题的人。</p>
+<p><code>创建人</code></p>
+<p>发现并录入这个灵感的人。</p>
+<p><code>投票 / 赞同数</code></p>
+<p>选题会或团队内部用来判断优先级。</p>
+<p><code>下一步动作</code></p>
+<p>必须写成具体动作，比如：</p>
+<ul>
+<li>查《礼记》出处</li>
+<li>找 3 个现代饭局案例</li>
+<li>写 60 秒口播脚本</li>
+<li>做 5 张图文结构</li>
+<li>周会讨论是否做系列</li>
+</ul>
+<h3>发布复盘</h3>
+<p>发布后填写：</p>
+<ul>
+<li>平台</li>
+<li>浏览量</li>
+<li>涨粉</li>
+<li>复盘结论</li>
+</ul>
+<p>复盘结论要回答三个问题：</p>
+<ol>
+<li>为什么成功或失败</li>
+<li>哪个点最有效</li>
+<li>是否值得做成系列</li>
+</ol>
+<h2>7. 每周选题会怎么用</h2>
+<p>每周固定开一次选题会。</p>
+<p>会议前，每个人先完成：</p>
+<ul>
+<li>录入本周灵感</li>
+<li>给自己认为值得做的灵感投票</li>
+<li>补充标题候选和开头钩子</li>
+</ul>
+<p>会议中只看四类：</p>
+<ul>
+<li>爆款分高</li>
+<li>投票多</li>
+<li>优先级高</li>
+<li>和账号定位强相关</li>
+</ul>
+<p>每次选 3-5 条进入 <code>已立项</code>。</p>
+<p>会议结束时，每条已立项选题必须有：</p>
+<ul>
+<li>负责人</li>
+<li>下一步动作</li>
+<li>计划发布平台</li>
+</ul>
+<h2>8. 团队协作规则</h2>
+<ol>
+<li>不要删除别人的灵感，除非已经确认放弃。</li>
+<li>不确定的选题不要删，改成 <code>待验证</code> 或 <code>放弃</code>。</li>
+<li>负责人变更后，要同步更新 <code>下一步动作</code>。</li>
+<li>已发布内容必须复盘。</li>
+<li>好选题可以复制成变体，不要在原选题里混写多个方向。</li>
+</ol>
+<h2>9. 示例</h2>
+<h3>示例 1</h3>
+<p>灵感标题：</p>
+<pre><code>为什么古人吃饭也要讲礼？</code></pre>
+<p>一句话选题公式：</p>
+<pre><code>给年轻人讲清楚：饭桌礼仪不是装腔，而是一套古人的社会秩序。</code></pre>
+<p>开头钩子：</p>
+<pre><code>你以为饭桌礼仪只是客套，其实它曾经决定一个人的社会位置。</code></pre>
+<h3>示例 2</h3>
+<p>灵感标题：</p>
+<pre><code>现代人为什么越来越受不了仪式感？</code></pre>
+<p>一句话选题公式：</p>
+<pre><code>给年轻人讲清楚：我们讨厌的不是仪式，而是没有意义的表演。</code></pre>
+<p>开头钩子：</p>
+<pre><code>我们讨厌的不是仪式感，而是没有意义的表演。</code></pre>
+<h2>10. 常见问题</h2>
+<h3>打开后没有数据怎么办</h3>
+<p>先点击 <code>连接云端</code>。</p>
+<p>如果仍然没有数据，检查 Supabase URL 和 Publishable key 是否填写正确。</p>
+<h3>保存后别人看不到怎么办</h3>
+<p>确认你保存时页面显示的是 <code>已连接云端</code>，不是本地模式。</p>
+<p>如果是本地模式，数据只存在你自己的浏览器里。</p>
+<h3>可以多人同时编辑吗</h3>
+<p>可以，但当前版本没有冲突提醒。多人同时编辑同一条时，后保存的人会覆盖前面的改动。</p>
+<h3>Publishable key 能不能发给团队</h3>
+<p>可以发给内部小团队使用。</p>
+<p>但当前版本拿到链接和 key 的人都能新增、编辑、删除数据，所以不要公开传播。</p>
+<h2>11. 最重要的使用原则</h2>
+<p>这个库的价值不在于存了多少条，而在于能不能持续筛出值得做的选题。</p>
+<p>所以团队要坚持三件事：</p>
+<ul>
+<li>每天录入</li>
+<li>每周筛选</li>
+<li>发布后复盘</li>
+</ul>
+
+    </article>
+  </div>
+</body>
+</html>

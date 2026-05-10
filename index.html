@@ -155,6 +155,44 @@
     }
     .status-dot.online::before { background: var(--teal); }
     .status-dot.error::before { background: var(--red); }
+    .guide-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 31, 29, .54);
+      z-index: 30;
+      display: none;
+      padding: 24px;
+    }
+    .guide-modal.open {
+      display: grid;
+      place-items: center;
+    }
+    .guide-panel {
+      width: min(980px, 100%);
+      height: min(86vh, 900px);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, .22);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+    .guide-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fffdf8;
+    }
+    .guide-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
 
     @media (max-width: 1120px) {
       .app { grid-template-columns: 1fr; }
@@ -166,6 +204,9 @@
       .side, .main { padding: 16px; }
       .topbar, .card-head, .cloud-head { flex-direction: column; align-items: stretch; }
       .grid2, .grid3, .filters, .stats { grid-template-columns: 1fr; }
+      .guide-modal { padding: 8px; }
+      .guide-panel { height: 94vh; border-radius: 8px; }
+      .guide-toolbar { align-items: flex-start; flex-direction: column; }
     }
   </style>
 </head>
@@ -248,6 +289,7 @@
           <p class="subtitle">按分数、状态、负责人和优先级筛选，决定本周先做什么。</p>
         </div>
         <div class="actions">
+          <button class="btn secondary" id="guideBtn" type="button">说明书</button>
           <button class="btn secondary" id="exportBtn" type="button">⇩ 导出</button>
           <button class="btn secondary" id="importBtn" type="button">⇧ 导入</button>
           <input class="file-input" id="importFile" type="file" accept="application/json">
@@ -288,6 +330,22 @@
 
       <section class="cards" id="cards"></section>
     </main>
+  </div>
+
+  <div class="guide-modal" id="guideModal" aria-hidden="true">
+    <div class="guide-panel" role="dialog" aria-modal="true" aria-label="话题灵感库使用说明书">
+      <div class="guide-toolbar">
+        <div>
+          <strong>话题灵感库使用说明书</strong>
+          <p class="small">日常录入、选题会、创作推进和发布复盘规则。</p>
+        </div>
+        <div class="actions">
+          <a class="btn secondary" href="usage-guide.pdf" target="_blank" rel="noopener">打开 PDF</a>
+          <button class="btn" id="closeGuideBtn" type="button">关闭</button>
+        </div>
+      </div>
+      <iframe class="guide-frame" src="usage-guide.html" title="话题灵感库使用说明书"></iframe>
+    </div>
   </div>
 
   <script>
@@ -799,6 +857,23 @@
       supabaseClient = null;
       cloudEnabled = false;
       setCloudStatus("本地模式");
+    });
+
+    el("guideBtn").addEventListener("click", () => {
+      el("guideModal").classList.add("open");
+      el("guideModal").setAttribute("aria-hidden", "false");
+    });
+
+    el("closeGuideBtn").addEventListener("click", () => {
+      el("guideModal").classList.remove("open");
+      el("guideModal").setAttribute("aria-hidden", "true");
+    });
+
+    el("guideModal").addEventListener("click", (event) => {
+      if (event.target === el("guideModal")) {
+        el("guideModal").classList.remove("open");
+        el("guideModal").setAttribute("aria-hidden", "true");
+      }
     });
 
     fillCloudConfig();
