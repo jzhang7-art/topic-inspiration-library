@@ -285,8 +285,9 @@
           </div>
           <div class="grid2">
             <label>创建人<input id="creator" maxlength="40" placeholder="谁发现的"></label>
-            <label>下一步动作<input id="nextAction" maxlength="120" placeholder="例如：查出处、写脚本、找案例、周会讨论"></label>
+            <label>截止日期<input id="deadline" type="date"></label>
           </div>
+          <label>下一步动作<input id="nextAction" maxlength="120" placeholder="例如：查出处、写脚本、找案例、周会讨论"></label>
         </div>
 
         <div class="section">
@@ -384,7 +385,7 @@
     const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_j7NhcEMEj91NOVihjwzZHA_Ppnvb5kj";
     const ACCOUNTS = ["礼乐科普号", "礼乐生活号", "礼乐戏曲号"];
     const UNASSIGNED = "未分类";
-    const textFields = ["account", "title", "note", "pillar", "source", "evidence", "audience", "formula", "hook", "titles", "tags", "format", "priority", "status", "owner", "creator", "nextAction", "platform", "views", "followers", "review"];
+    const textFields = ["account", "title", "note", "pillar", "source", "evidence", "audience", "formula", "hook", "titles", "tags", "format", "priority", "status", "owner", "creator", "deadline", "nextAction", "platform", "views", "followers", "review"];
     const scoreFields = ["counter", "emotion", "comment", "share", "fit", "difficulty"];
     const el = (id) => document.getElementById(id);
     const form = el("ideaForm");
@@ -438,7 +439,9 @@
         views: 0,
         followers: 0,
         review: "",
-        scores: { counter: 4, emotion: 3, comment: 4, share: 4, fit: 5, difficulty: 2 }
+        scores: { counter: 4, emotion: 3, comment: 4, share: 4, fit: 5, difficulty: 2 },
+        deadline: "",
+        sortOrder: 0
       }, {
         id: "22222222-2222-4222-8222-222222222222",
         createdAt: "2026-05-10T00:00:00.000Z",
@@ -465,7 +468,9 @@
         views: 0,
         followers: 0,
         review: "",
-        scores: { counter: 3, emotion: 5, comment: 5, share: 4, fit: 4, difficulty: 2 }
+        scores: { counter: 3, emotion: 5, comment: 5, share: 4, fit: 4, difficulty: 2 },
+        deadline: "",
+        sortOrder: 1
       }];
     }
 
@@ -474,7 +479,9 @@
         ...idea,
         account: ACCOUNTS.includes(idea.account) ? idea.account : UNASSIGNED,
         voters: Array.isArray(idea.voters) ? idea.voters : [],
-        tags: Array.isArray(idea.tags) ? idea.tags : splitTags(idea.tags)
+        tags: Array.isArray(idea.tags) ? idea.tags : splitTags(idea.tags),
+        deadline: idea.deadline || "",
+        sortOrder: typeof idea.sortOrder === "number" ? idea.sortOrder : 999999
       };
     }
 
@@ -702,6 +709,7 @@
       setAccountOptions(false);
       el("account").value = activeAccount;
       ["views", "followers"].forEach((key) => el(key).value = 0);
+      el("deadline").value = "";
       scoreFields.forEach((key) => el(key).value = 3);
       syncRanges();
       el("submitBtn").textContent = "＋ 保存灵感";
