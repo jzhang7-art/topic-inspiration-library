@@ -113,7 +113,7 @@
     .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 13px; min-height: 72px; }
     .stat strong { display: block; font-size: 24px; line-height: 1; margin-bottom: 7px; }
     .stat span { color: var(--muted); font-size: 13px; }
-    .filters { display: grid; grid-template-columns: minmax(220px, 1.5fr) repeat(5, minmax(115px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .filters { display: grid; grid-template-columns: minmax(220px, 1.5fr) repeat(6, minmax(105px, 1fr)); gap: 10px; margin-bottom: 14px; }
     .cards { display: grid; gap: 12px; }
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 15px; }
     .card-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
@@ -122,6 +122,9 @@
     .pill.hot { background: #e2f5f1; color: #075e57; }
     .pill.owner { background: #eaf0ff; color: #1d4ed8; }
     .pill.status { background: #fff4db; color: #7a4600; }
+    .pill.deadline-ok { background: #f0fdf4; color: #16a34a; }
+    .pill.deadline-warn { background: #fff7ed; color: #b45309; }
+    .pill.deadline-late { background: #fff0ee; color: #b42318; font-weight: 600; }
     .score {
       width: 60px;
       height: 60px;
@@ -353,6 +356,7 @@
         <select id="filterOwner"><option value="">全部负责人</option></select>
         <select id="filterPriority"><option value="">全部优先级</option></select>
         <select id="filterPillar"><option value="">全部支柱</option></select>
+        <select id="filterDeadline"><option value="">全部截止</option><option value="this-week">本周到期</option><option value="delayed">已 delay</option><option value="none">无截止日期</option></select>
         <select id="sortBy"><option value="score">按爆款分</option><option value="votes">按投票</option><option value="newest">按新增时间</option><option value="title">按标题</option></select>
       </section>
 
@@ -663,6 +667,26 @@
       return Math.round(((positive + difficultyPenalty) / 30) * 100);
     }
 
+    function deadlinePillInfo(deadline) {
+      if (!deadline) return null;
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const dl = new Date(deadline + "T00:00:00");
+      const dlDate = dl.toLocaleDateString("zh-CN", { month: "long", day: "numeric" });
+      if (dl.getTime() < today.getTime()) return { cls: "deadline-late", text: `已delay · ${dlDate}` };
+      if (dl.getTime() === today.getTime()) return { cls: "deadline-warn", text: "今日截止" };
+      return { cls: "deadline-ok", text: `截止 ${dlDate}` };
+    }
+
+    function isThisWeek(dateStr) {
+      if (!dateStr) return false;
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const day = today.getDay() || 7;
+      const monday = new Date(today); monday.setDate(today.getDate() - day + 1);
+      const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+      const dl = new Date(dateStr + "T00:00:00");
+      return dl >= monday && dl <= sunday;
+    }
+
     function collectForm() {
       const old = editingId ? ideas.find((item) => item.id === editingId) : null;
       const idea = {
@@ -741,16 +765,22 @@
       const owner = el("filterOwner").value;
       const priority = el("filterPriority").value;
       const pillar = el("filterPillar").value;
+      const deadlineFilter = el("filterDeadline").value;
       const sortBy = el("sortBy").value;
 
       return ideas.filter((idea) => {
         const haystack = [idea.title, idea.note, idea.pillar, idea.source, idea.evidence, idea.audience, idea.formula, idea.hook, idea.titles, idea.status, idea.owner, idea.creator, idea.nextAction, idea.review, ...(idea.tags || [])].join(" ").toLowerCase();
+        const dlMatch = !deadlineFilter
+          || (deadlineFilter === "this-week" && isThisWeek(idea.deadline))
+          || (deadlineFilter === "delayed" && idea.deadline && new Date(idea.deadline + "T00:00:00") < new Date(new Date().toDateString()))
+          || (deadlineFilter === "none" && !idea.deadline);
         return accountOf(idea) === activeAccount
           && (!query || haystack.includes(query))
           && (!status || idea.status === status)
           && (!owner || idea.owner === owner)
           && (!priority || idea.priority === priority)
-          && (!pillar || idea.pillar === pillar);
+          && (!pillar || idea.pillar === pillar)
+          && dlMatch;
       }).sort((a, b) => {
         if (sortBy === "votes") return voteCount(b) - voteCount(a);
         if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
@@ -826,6 +856,7 @@
                 <span class="pill">已投 ${voteCount(idea)}</span>
                 <span class="pill">${escapeHtml(idea.pillar)}</span>
                 <span class="pill">${date}</span>
+                ${(() => { const dpi = deadlinePillInfo(idea.deadline); return dpi ? `<span class="pill ${dpi.cls}">${dpi.text}</span>` : ""; })()}
               </div>
             </div>
             <div class="score" style="--score:${score}"><span>${score}</span></div>
@@ -898,7 +929,7 @@
 
     el("resetBtn").addEventListener("click", resetForm);
     scoreFields.forEach((key) => el(key).addEventListener("input", syncRanges));
-    ["search", "filterStatus", "filterOwner", "filterPriority", "filterPillar", "sortBy"].forEach((id) => el(id).addEventListener("input", renderCards));
+    ["search", "filterStatus", "filterOwner", "filterPriority", "filterPillar", "filterDeadline", "sortBy"].forEach((id) => el(id).addEventListener("input", renderCards));
 
     el("exportBtn").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(ideas, null, 2)], { type: "application/json" });
