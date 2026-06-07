@@ -109,6 +109,29 @@
       color: inherit;
     }
     .tab.active .count { background: rgba(255, 255, 255, .26); }
+    .status-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .status-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: var(--soft);
+      color: var(--muted);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .status-tab.active { border-color: var(--teal); background: #e2f5f1; color: #075e57; font-weight: 600; }
+    .status-tab .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .status-tab .count { font-size: 11px; opacity: .7; }
+    .pill.st-gray { background: #f3f4f6; color: #6b7280; }
+    .pill.st-blue { background: #eff6ff; color: #2563eb; }
+    .pill.st-teal { background: #e2f5f1; color: #075e57; }
+    .pill.st-green { background: #f0fdf4; color: #16a34a; }
+    .pill.st-dgreen { background: #dcfce7; color: #15803d; }
+    .pill.st-red { background: #fff0ee; color: #b42318; }
     .stats { display: grid; grid-template-columns: repeat(5, minmax(110px, 1fr)); gap: 10px; margin-bottom: 14px; }
     .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 13px; min-height: 72px; }
     .stat strong { display: block; font-size: 24px; line-height: 1; margin-bottom: 7px; }
@@ -347,6 +370,7 @@
       </section>
 
       <section class="tabs" id="accountTabs"></section>
+      <section class="status-tabs" id="statusTabs"></section>
 
       <section class="stats" id="stats"></section>
 
@@ -687,6 +711,22 @@
       return dl >= monday && dl <= sunday;
     }
 
+    const STATUS_COLORS = {
+      "新灵感": { cls: "st-gray", dot: "#9ca3af" },
+      "待讨论": { cls: "st-blue", dot: "#3b82f6" },
+      "待验证": { cls: "st-blue", dot: "#3b82f6" },
+      "已立项": { cls: "st-teal", dot: "#0f766e" },
+      "写脚本中": { cls: "st-teal", dot: "#0f766e" },
+      "拍摄/制作中": { cls: "st-green", dot: "#16a34a" },
+      "已发布": { cls: "st-dgreen", dot: "#15803d" },
+      "复盘完成": { cls: "st-dgreen", dot: "#15803d" },
+      "放弃": { cls: "st-red", dot: "#b42318" }
+    };
+
+    function statusColorClass(status) {
+      return (STATUS_COLORS[status] || { cls: "st-gray", dot: "#9ca3af" }).cls;
+    }
+
     function collectForm() {
       const old = editingId ? ideas.find((item) => item.id === editingId) : null;
       const idea = {
@@ -815,6 +855,27 @@
       ).join("");
     }
 
+    function renderStatusTabs() {
+      const scoped = ideas.filter((idea) => accountOf(idea) === activeAccount);
+      const statusCounts = {};
+      scoped.forEach((idea) => { statusCounts[idea.status] = (statusCounts[idea.status] || 0) + 1; });
+      const allStatuses = ["新灵感", "待讨论", "待验证", "已立项", "写脚本中", "拍摄/制作中", "已发布", "复盘完成", "放弃"];
+      const activeStatus = el("filterStatus").value;
+      let html = `<button type="button" class="status-tab ${!activeStatus ? "active" : ""}" onclick="selectStatus('')">全部 <span class="count">${scoped.length}</span></button>`;
+      allStatuses.forEach((s) => {
+        const count = statusCounts[s] || 0;
+        if (!count) return;
+        const info = STATUS_COLORS[s] || { cls: "st-gray", dot: "#9ca3af" };
+        html += `<button type="button" class="status-tab ${activeStatus === s ? "active" : ""}" onclick="selectStatus('${escapeHtml(s)}')"><span class="dot" style="background:${info.dot}"></span>${escapeHtml(s)} <span class="count">${count}</span></button>`;
+      });
+      el("statusTabs").innerHTML = html;
+    }
+
+    window.selectStatus = (status) => {
+      el("filterStatus").value = status;
+      renderCards();
+    };
+
     window.selectAccount = (name) => {
       if (!ACCOUNTS.includes(name) && name !== UNASSIGNED) return;
       activeAccount = name;
@@ -830,6 +891,7 @@
         activeAccount = ACCOUNTS[0];
       }
       renderTabs();
+      renderStatusTabs();
       refreshFilters();
       const list = filteredIdeas();
       renderStats(list);
@@ -850,7 +912,7 @@
               <h3>${escapeHtml(idea.title)}</h3>
               <div class="meta">
                 <span class="pill hot">爆款分 ${score}</span>
-                <span class="pill status">${escapeHtml(idea.status)}</span>
+                <span class="pill ${statusColorClass(idea.status)}">${escapeHtml(idea.status)}</span>
                 <span class="pill owner">负责人：${escapeHtml(idea.owner || "未分配")}</span>
                 <span class="pill">优先级：${escapeHtml(idea.priority)}</span>
                 <span class="pill">已投 ${voteCount(idea)}</span>
