@@ -248,7 +248,7 @@
           <label>灵感标题<input id="title" required maxlength="90" placeholder="例如：为什么古人吃饭也讲仪式感？"></label>
           <label>看到的事情 / 原始素材<textarea id="note" required placeholder="记录事件、对话、观察、链接、截图描述或一句话想法"></textarea></label>
           <div class="grid2">
-            <label>内容支柱<select id="pillar"><option>生活观察</option><option>礼乐科普</option><option>历史冷知识</option><option>文化对比</option><option>热点借势</option><option>人物故事</option></select></label>
+            <label>内容支柱<select id="pillar"><option>生活观察</option><option>礼乐科普</option><option>历史冷知识</option><option>文化对比</option><option>热点借势</option><option>人物故事</option><option>戏曲赏析</option><option>唱腔身段</option><option>戏里乾坤</option><option>梨园人物</option></select></label>
             <label>来源场景<input id="source" maxlength="60" placeholder="聊天、书、路上、展览、评论区"></label>
           </div>
           <label>素材证据<textarea id="evidence" placeholder="链接、出处、截图说明、评论区原话、可引用案例"></textarea></label>
@@ -382,7 +382,7 @@
     const TABLE_NAME = "topic_ideas";
     const DEFAULT_SUPABASE_URL = "https://qocffgqhdhohskvrhvdr.supabase.co";
     const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_j7NhcEMEj91NOVihjwzZHA_Ppnvb5kj";
-    const ACCOUNTS = ["礼乐科普号", "礼乐生活号"];
+    const ACCOUNTS = ["礼乐科普号", "礼乐生活号", "礼乐戏曲号"];
     const UNASSIGNED = "未分类";
     const textFields = ["account", "title", "note", "pillar", "source", "evidence", "audience", "formula", "hook", "titles", "tags", "format", "priority", "status", "owner", "creator", "nextAction", "platform", "views", "followers", "review"];
     const scoreFields = ["counter", "emotion", "comment", "share", "fit", "difficulty"];
