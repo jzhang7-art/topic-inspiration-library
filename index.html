@@ -138,7 +138,25 @@
     .stat span { color: var(--muted); font-size: 13px; }
     .filters { display: grid; grid-template-columns: minmax(220px, 1.5fr) repeat(6, minmax(105px, 1fr)); gap: 10px; margin-bottom: 14px; }
     .cards { display: grid; gap: 12px; }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 15px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 15px; position: relative; }
+    .drag-handle {
+      position: absolute;
+      left: -2px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      text-align: center;
+      font-size: 16px;
+      color: var(--line);
+      cursor: grab;
+      user-select: none;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .card:hover .drag-handle { opacity: 1; }
+    .drag-handle:active { cursor: grabbing; }
+    .card.dragging { opacity: .45; }
+    .card.drag-over { border-top: 2px dashed var(--blue); }
     .card-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
     .meta, .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
     .pill { border-radius: 999px; padding: 4px 8px; background: var(--soft); color: var(--muted); font-size: 12px; line-height: 1.2; }
@@ -381,7 +399,7 @@
         <select id="filterPriority"><option value="">全部优先级</option></select>
         <select id="filterPillar"><option value="">全部支柱</option></select>
         <select id="filterDeadline"><option value="">全部截止</option><option value="this-week">本周到期</option><option value="delayed">已 delay</option><option value="none">无截止日期</option></select>
-        <select id="sortBy"><option value="score">按爆款分</option><option value="votes">按投票</option><option value="newest">按新增时间</option><option value="title">按标题</option></select>
+        <select id="sortBy"><option value="score">按爆款分</option><option value="votes">按投票</option><option value="newest">按新增时间</option><option value="title">按标题</option><option value="manual">按手动排序</option></select>
       </section>
 
       <section class="cards" id="cards"></section>
@@ -822,6 +840,7 @@
           && (!pillar || idea.pillar === pillar)
           && dlMatch;
       }).sort((a, b) => {
+        if (sortBy === "manual") return (a.sortOrder ?? 999999) - (b.sortOrder ?? 999999);
         if (sortBy === "votes") return voteCount(b) - voteCount(a);
         if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
         if (sortBy === "title") return String(a.title).localeCompare(String(b.title), "zh-CN");
@@ -901,12 +920,14 @@
       }
 
       const voterId = getVoterId();
+      const isManualSort = el("sortBy").value === "manual";
       el("cards").innerHTML = list.map((idea) => {
         const score = scoreOf(idea);
         const date = new Date(idea.createdAt).toLocaleDateString("zh-CN");
         const titleLines = lines(idea.titles);
         const voted = (idea.voters || []).includes(voterId);
-        return `<article class="card">
+        return `<article class="card" ${isManualSort ? `draggable="true" data-id="${idea.id}"` : `data-id="${idea.id}"`}>
+          ${isManualSort ? '<span class="drag-handle">⠿</span>' : ''}
           <div class="card-head">
             <div>
               <h3>${escapeHtml(idea.title)}</h3>
@@ -991,7 +1012,23 @@
 
     el("resetBtn").addEventListener("click", resetForm);
     scoreFields.forEach((key) => el(key).addEventListener("input", syncRanges));
-    ["search", "filterStatus", "filterOwner", "filterPriority", "filterPillar", "filterDeadline", "sortBy"].forEach((id) => el(id).addEventListener("input", renderCards));
+    ["search", "filterStatus", "filterOwner", "filterPriority", "filterPillar", "filterDeadline"].forEach((id) => el(id).addEventListener("input", renderCards));
+
+    el("sortBy").addEventListener("input", () => {
+      if (el("sortBy").value === "manual") {
+        const scoped = ideas.filter((idea) => accountOf(idea) === activeAccount);
+        const needsInit = scoped.every((idea) => (idea.sortOrder ?? 999999) === 999999);
+        if (needsInit) {
+          const sorted = [...scoped].sort((a, b) => scoreOf(b) - scoreOf(a));
+          sorted.forEach((item, idx) => {
+            const idea = ideas.find((i) => i.id === item.id);
+            if (idea) idea.sortOrder = idx;
+          });
+          saveIdeas();
+        }
+      }
+      renderCards();
+    });
 
     el("exportBtn").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(ideas, null, 2)], { type: "application/json" });
@@ -1087,6 +1124,55 @@
         el("guideModal").classList.remove("open");
         el("guideModal").setAttribute("aria-hidden", "true");
       }
+    });
+
+    let dragId = null;
+
+    el("cards").addEventListener("dragstart", (e) => {
+      const card = e.target.closest(".card[draggable]");
+      if (!card) return;
+      dragId = card.dataset.id;
+      card.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    el("cards").addEventListener("dragend", (e) => {
+      const card = e.target.closest(".card");
+      if (card) card.classList.remove("dragging");
+      document.querySelectorAll(".card.drag-over").forEach((c) => c.classList.remove("drag-over"));
+      dragId = null;
+    });
+
+    el("cards").addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const card = e.target.closest(".card[data-id]");
+      document.querySelectorAll(".card.drag-over").forEach((c) => c.classList.remove("drag-over"));
+      if (card && card.dataset.id !== dragId) card.classList.add("drag-over");
+    });
+
+    el("cards").addEventListener("drop", async (e) => {
+      e.preventDefault();
+      const targetCard = e.target.closest(".card[data-id]");
+      if (!targetCard || !dragId || targetCard.dataset.id === dragId) return;
+      const list = filteredIdeas();
+      const fromIdx = list.findIndex((i) => i.id === dragId);
+      const toIdx = list.findIndex((i) => i.id === targetCard.dataset.id);
+      if (fromIdx === -1 || toIdx === -1) return;
+      const [moved] = list.splice(fromIdx, 1);
+      list.splice(toIdx, 0, moved);
+      list.forEach((item, idx) => {
+        const idea = ideas.find((i) => i.id === item.id);
+        if (idea) idea.sortOrder = idx;
+      });
+      saveIdeas();
+      if (cloudEnabled) {
+        for (const item of list) {
+          const idea = ideas.find((i) => i.id === item.id);
+          if (idea) await upsertCloudIdea(idea);
+        }
+      }
+      renderCards();
     });
 
     fillCloudConfig();
